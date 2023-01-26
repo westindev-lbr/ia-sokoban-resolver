@@ -1,92 +1,58 @@
-# IA-sokoban-resolver
+# Sokoban
 
+Ce TP étant long, il est possible de le rendre en groupe de 2 à 4.
 
+L'objectif de ce TP est de présenter les résultats obtenus sur des problèmes de sokoban (https://en.wikipedia.org/wiki/Sokoban).
 
-## Getting started
+Il s'agit d'étudier des variantes de Sokoban et de résoudre chaque problème le plus rapidement possible, tous les précalculs possibles et réalisables étant autorisés.
+Si des précalculs sont utilisés, il est attendu de les réaliser par application de procédures et sans intervention humaine (similaire à une génération procédurale).
+Comme dans le cas de génération procédurale, il s'agit d'appliquer une procédure par exemple pour définir les positions bloquantes (i.e. interdites) ou les positions les plus interessantes. Les procédures utilisées peuvent ne pas être déterminites (i.e. ne pas garantir d'obtenir le même résultat à chaque exécution).
+Deux variantes de Sokoban sont à étudier dans ce TP. Pour chaque variante, un ensemble de 10 problèmes est à résoudre (screen-0.txt à screen-1.txt).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Quand on demande la résolution d'un problème, on le fait par la ligne de commande: ./a.out 1 Screens-1/screen-1.txt
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Le répertoire Screens-1 contient 10 problèmes à 1 joueur
+Le répertoire Screens-2 contient 10 problèmes à 2 joueurs
 
-## Add your files
+Dans tous les problèmes :
+Les caisses sont des "$"
+Les cases objectifs sont des "."
+Les murs sont des "#"
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Les mouvements possibles sont udlrw pour chaque joueur, u pour up, d pour down, l pour left, r pour right, w pour wait.
 
-```
-cd existing_repo
-git remote add origin https://code.up8.edu/alabarre/ia-sokoban-resolver.git
-git branch -M main
-git push -uf origin main
-```
+Avec 1 joueur, on déplace 1 joueur (noté 1) à chaque instant.
+Avec 2 joueur, on déplace 2 joueurs (notés 1 et 2) à chaque instant. uw fait monter le 1 et ne fait rien sur le 2. wu fait rien sur le 1 et monte le 2.
 
-## Integrate with your tools
+Pour chaque problème de Screens-1, on recherche les solutions permettant de déplacer 1, 2, 3, ... caisses sur les cases objectifs.
+Pour chaque problème de Screens-2, ayant 2 joueurs, on recherche les solutions pour 2, 3, ... caisses vers 2,3, ... cases objectifs.
+Ces problèmes étant difficiles, il est fort probable que nous ne réussissiez pas à déplacer toutes les caisses vers toutes les cases objectifs.
+(même si une solution existe pour chaque problème)
+On notera que Screens-1/screen-0.txt et Screens-2/screen-0.txt ne sont pas les mêmes problèmes et que leur solution diffère.
 
-- [ ] [Set up project integrations](https://code.up8.edu/alabarre/ia-sokoban-resolver/-/settings/integrations)
+Extraire sokoban-2023.tgz
+Aller dans le répertoire sokoban-2023
+Le répertoire src contient le début du TP
+Le répertoire Screens-1 (respect. 2) contient les problèmes à 1 joueur (respect. 2 joueurs)
+Dans src :
+La commande "make" crée l'executable r0
+Lancer "./r0 ../Screens-1/screen-0.txt" permet de lire et afficher le problème considéré
 
-## Collaborate with your team
+#####################################################################
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Ecrire un programme C/C++ résolvant ces problèmes.
+Ecrire un programme Prolog résolvant ces problèmes (qui sera probablement plus lent que le programme C/C++ mais peut être plus simple).
 
-## Test and Deploy
+Dans un rapport pdf en une ou deux pages :
+Présenter l'algorithme correspondant aux calculs déployés.
+Si des précalculs sont utilisés, présenter les algorithmes correspondants.
+Pour chaque problème, présenter dans une table de résultats :
 
-Use the built-in continuous integration in GitLab.
+- le nombre max de caisses déplacées sur les cases objectifs
+- la solution correspondante
+- le temps de calcul utilisé (en cas de résolution non déterministe, donner le meilleur temps, le temps moyen et le nombre d'essais pour obtenir ces résultats)
+- le temps de précalcul (si précalcul vous avez utilisé)
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Pour l'ensemble des calculs, préciser cpu et ram de l'ordinateur utilisé.
 
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+#####################################################################
