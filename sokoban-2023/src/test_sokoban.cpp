@@ -6,60 +6,130 @@
 #include <math.h>
 
 using namespace std;
-
-void clear(char map[][5])
+class Pos
 {
-    for (int i = 0; i < sizeof(map[0]); i++)
+public:
+    int x, y;
+    char n;
+    Pos(int xx, int yy, char nn)
     {
-        for (int j = 0; j < sizeof(map[0]); j++)
+        x = xx;
+        y = yy;
+        n = nn;
+    }
+
+    int get_x()
+    {
+        return x;
+    }
+    ~Pos() {}
+};
+
+struct Map
+{
+    int xx = 5;
+    int yy = 5;
+    char **tab;
+
+    Map()
+    {
+        tab = new char *[yy];
+        for (int i = 0; i < yy; ++i)
         {
-            if (map[i][j] != '#')
+            tab[i] = nullptr;
+        }
+        for (int i = 0; i < yy; ++i)
+        {
+            tab[i] = new char[xx];
+        }
+        for (int i = 0; i < xx; ++i)
+        {
+            for (int j = 0; j < yy; ++j)
             {
-                map[i][j] = ' ';
+                if (i == 0 || j == 0 || i == yy - 1 || j == xx - 1)
+                {
+                    tab[i][j] = '#';
+                }
+                else
+                {
+                    tab[i][j] = ' ';
+                }
             }
         }
     }
-}
 
-void place(char map[][5], int tab[][2], int choix)
-{
-    char lettre[3] = {'$', 'P', 'O'};
-    for (int i = 0; i < sizeof(tab) / sizeof(tab[0]); i++)
+    void clear()
     {
-        int a = tab[i][1];
-        int b = tab[i][0];
-        map[a][b] = lettre[choix];
-    }
-}
-void affiche(char map[][5], int c[][2], int p[][2], int o[][2])
-{
-    place(map, o, 2);
-    place(map, p, 1);
-    place(map, c, 0);
-    for (int i = 0; i < sizeof(map[0]); i++)
-    {
-        cout << "+-+-+-+-+-+" << endl;
-        cout << "|";
-        for (int j = 0; j < sizeof(map[0]); j++)
+        for (int i = 0; i < yy; i++)
         {
-            cout << map[i][j] << "|";
+            for (int j = 0; j < xx; j++)
+            {
+                if (tab[i][j] != '#')
+                {
+                    tab[i][j] = ' ';
+                }
+            }
         }
-        cout << endl;
     }
-    cout << "+-+-+-+-+-+" << endl;
-    clear(map);
-}
 
-char returnCase(char map[][5], int a, int b)
-{
-    return map[a][b];
-}
-
-int indexCaisse(int tab[][2], int a, int b)
-{
-    for (int i = 0; i < sizeof(tab) / sizeof(tab[0]); i++)
+    void place(vector<Pos> pos)
     {
-        if(a == tab[i][0] && b == tab[i][1]){
+        for (int i = 0; i < pos.size(); i++)
+        {
+            tab[pos[i].y][pos[i].x] = pos[i].n;
+        }
+    }
+
+    void affiche(vector<Pos> pos1, vector<Pos> pos2, vector<Pos> pos3)
+    { 
+        clear();
+        place(pos1);
+        place(pos2);
+        place(pos3);
+        for (int i = 0; i < yy; i++)
+        {
+            cout << "+-+-+-+-+-+" << endl;
+            cout << "|";
+            for (int j = 0; j < xx; j++)
+            {
+                cout << tab[i][j] << "|";
+            }
+            cout << endl;
+        }
+        cout << "+-+-+-+-+-+" << endl;
+       
+    }
+
+    char returnCase(int y, int x)
+    {
+        return tab[y][x];
+    }
+
+    bool canMove(int y, int x, int yy, int xx)
+    {
+        if (returnCase(y, x) != ' ')
+        {
+            if (returnCase(y, x) == '$')
+            {
+                if (returnCase(yy, xx) == '#' || returnCase(yy, xx) == '$')
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        return true;
+    
+    }
+};
+
+int indexCaisse(vector<Pos> c, int y, int x)
+{
+    for (int i = 0; i < c.size(); i++)
+    {
+        if (y == c[i].y && x == c[i].x)
+        {
             return i;
         }
     }
@@ -67,82 +137,88 @@ int indexCaisse(int tab[][2], int a, int b)
     return -1;
 }
 
-bool canMove(int x, int y,int xx, int yy,char map[][5]){
-    if (returnCase(map,y,x) == '#')
+void Up(vector<Pos> &p, Map m, vector<Pos> &c, int index)
+{
+    int y = p[index].y, x = p[index].x;
+    if (m.canMove(y - 1, x, y - 2, x))
     {
-        return false;
-    }
-    if(returnCase(map,y,x) == '$'){
-        if(returnCase(map,yy,xx) == '#' || returnCase(map,yy,xx) == '$'){
-            return false;
-        }
-        return true;
-    }
-    return true;
-}
-
-void Up(int p[][2],char map[][5], int c[][2]){
-    int a = p[0][0],b = p[0][1];
-    if(canMove(a,b-1,a,b-2,map)){
-        p[0][1] = b-1;
-        int i = indexCaisse(c,a,b-1);
-        if(i != -1){
-            c[i][1] -= 1;
+        p[index].y = y - 1;
+        int i = indexCaisse(c, p[index].y, x);
+        if (i != -1)
+        {
+            c[i].y -= 1;
         }
     }
 }
 
-void Down(int p[][2],char map[][5], int c[][2]){
-    int a = p[0][0],b = p[0][1];
-    if(canMove(a,b+1,a,b+2,map)){
-        p[0][1] = b+1;
-        int i = indexCaisse(c,a,b+1);
-        if(i != -1){
-            c[i][1] += 1;
+void Down(vector<Pos> &p, Map m, vector<Pos> &c, int index)
+{
+    int y = p[index].y, x = p[index].x;
+    if (m.canMove(y + 1, x, y + 2, x))
+    {
+        p[index].y = y + 1;
+        int i = indexCaisse(c, p[index].y, x);
+        if (i != -1)
+        {
+            c[i].y += 1;
         }
     }
 }
 
-void Left(int p[][2],char map[][5], int c[][2]){
-    int a = p[0][0],b = p[0][1];
-    if(canMove(a-1,b,a-2,b,map)){
-        p[0][0] = a-1;
-        int i = indexCaisse(c,a-1,b);
-        if(i != -1){
-            c[i][0] -= 1;
+void Left(vector<Pos> &p, Map m, vector<Pos> &c, int index)
+{
+    int y = p[index].y, x = p[index].x;
+    if (m.canMove(y, x - 1, y, x - 2) == true)
+    {
+        p[index].x = x - 1;
+        int i = indexCaisse(c, y, p[index].x);
+        if (i != -1)
+        {
+            c[i].x -= 1;
         }
     }
 }
 
-void Right(int p[][2],char map[][5], int c[][2]){
-    int a = p[0][0],b = p[0][1];
-    if(canMove(a+1,b,a+2,b,map)){
-        p[0][0] = a+1;
-        int i = indexCaisse(c,a+1,b);
-        if(i != -1){
-            c[i][0] += 1;
+void Right(vector<Pos> &p, Map m, vector<Pos> &c, int index)
+{
+    int y = p[index].y, x = p[index].x;
+    if (m.canMove(y, x + 1, y, x + 2))
+    {
+        p[index].x = x + 1;
+        int i = indexCaisse(c, y, p[index].x);
+        if (i != -1)
+        {
+            c[i].x += 1;
         }
     }
 }
 
-int dist_case(int a, int b,int c, int d){
-    return abs(a-c)+abs(b-d);
+int dist_case(int y, int x, int yy, int xx)
+{
+    return abs(x - xx) + abs(y - yy);
 }
 
 int main()
 {
-    char map[5][5] = {{'#', '#', '#', '#', '#'},
-                      {'#', ' ', ' ', ' ', '#'},
-                      {'#', ' ', ' ', ' ', '#'},
-                      {'#', ' ', ' ', ' ', '#'},
-                      {'#', '#', '#', '#', '#'}};
-    int caisse[1][2] = {{2, 2}};
-    int player[1][2] = {{3, 3}};
-    int o[1][2] = {{1, 1}};
-
-    affiche(map, caisse, player, o);
-    Up(player,map,caisse);
-    Left(player,map,caisse);
-    affiche(map, caisse, player, o);
+    Map map;
+    Pos c1(2, 2, '$');
+    Pos p1(1, 3, 'P');
+    Pos g1(1, 1, 'X');
+    vector<Pos> c;
+    vector<Pos> p;
+    vector<Pos> g;
+    vector<Pos> pos;
+    c.push_back(c1);
+    p.push_back(p1);
+    g.push_back(g1);
+    map.affiche(g, p, c);
+    Up(p, map, c, 0);
+    map.affiche(g, p, c);
+    Right(p, map, c, 0);
+    map.affiche(g, p, c);
+    Right(p, map, c, 0);
+    map.affiche(g, p, c);
+    Left(p, map, c, 0);
+    map.affiche(g, p, c);
     return 0;
 }
