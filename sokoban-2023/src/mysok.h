@@ -63,6 +63,8 @@ void sok_board_t::print_board()
     printf("\n");
   }
 }
+
+
 void sok_board_t::load(char *_file)
 {
   FILE *fp = fopen(_file, "r");
