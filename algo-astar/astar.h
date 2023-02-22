@@ -9,7 +9,7 @@ template <typename T>
 bool isEqual(std::vector<T> &first, std::vector<T> &second);
 std::vector<std::pair<int, int> >
 next_moves(const state_t &s, sok_board_t &sokoban);
-state_t apply_move(state_t s, const std::pair<int, int> &move, sok_board_t &sokoban);
+state_t apply_move(state_t s, const std::pair<int, int> &move);
 int manhattan_distance(std::pair<int, int> pos1, std::pair<int, int> pos2);
 int sum_compute_distances(state_t &state, state_t &final);
 bool is_free(std::pair<int, int> pos, sok_board_t &sokoban);

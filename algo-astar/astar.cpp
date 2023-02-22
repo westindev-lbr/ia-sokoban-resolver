@@ -55,7 +55,7 @@ void a_star(state_t &initial_pos, state_t &final_pos, int max_iterations, sok_bo
         {
 
             // Retourne un nouvel état à partir d'un mvt possible
-            state_t sbis = apply_move(s, m, sokoban);
+            state_t sbis = apply_move(s, m);
             sbis.g_cost = s.g_cost + 1;                  // Cout de la distance déjà parcourue pour arriver à cet état
             sbis.heuristic = heuristic(sbis, final_pos); // Heuristique, estimation de la distance restante à parcourir pour arriver à l'état final
             sbis.f_eval = sbis.g_cost + sbis.heuristic;  // fonction d'évaluation de g(n) + h(n)
@@ -141,7 +141,7 @@ next_moves(const state_t &s, sok_board_t &sokoban)
     return moves;
 }
 
-state_t apply_move(state_t s, const std::pair<int, int> &move, sok_board_t &sokoban)
+state_t apply_move(state_t s, const std::pair<int, int> &move)
 {
     for (auto &crate : s.crates)
     {
