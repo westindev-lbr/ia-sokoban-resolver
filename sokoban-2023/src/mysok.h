@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <string.h>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #define NBL 20
 #define NBC 20
@@ -30,6 +32,45 @@
 char board_str[] = {' ', '_', '.', '#', '$', '*', '1', 'u', '2', 'd', 'a'};
 std::string move_str[] = {"Up", "Down", "Left", "Right", "Wait"};
 
+// Structure position
+typedef struct position
+{
+  std::vector<std::pair<int, int>> crates;
+  std::pair<int, int> player1;
+  int g_cost; 
+  int heuristic;
+  int f_eval;
+
+  bool operator==(const position &other) const
+  {
+    return crates == other.crates && player1 == other.player1;
+  }
+
+} state_t;
+
+// Fonction de Hashage pour la Hashmap
+typedef struct state_hash
+{
+  std::size_t operator()(const state_t &s) const
+  {
+    std::size_t h1 = std::hash<int>{}(s.player1.first);
+    std::size_t h2 = std::hash<int>{}(s.player1.second);
+    std::size_t h3 = std::hash<int>{}(s.heuristic);
+    std::size_t h4 = std::hash<int>{}(s.g_cost);
+    std::size_t h5 = std::hash<int>{}(s.f_eval);
+
+    std::size_t seed = h1 ^ (h2 << 1) ^ (h3 << 2) ^ (h4 << 3) ^ (h5 << 4);
+
+    for (auto &crate : s.crates)
+    {
+      std::size_t h6 = std::hash<int>{}(crate.first);
+      std::size_t h7 = std::hash<int>{}(crate.second);
+      seed ^= h6 ^ (h7 << 1);
+    }
+    return seed;
+  }
+} state_hash_t;
+
 struct sok_board_t
 {
   int board[NBL][NBC];
@@ -38,10 +79,23 @@ struct sok_board_t
   int man1_y;
   int man2_x;
   int man2_y;
+  int nb_crates;
+  std::vector<std::pair<int,int>> crates;
+  std::vector<std::pair<int,int>> targets;
 
   sok_board_t();
   void print_board();
   void load(char *_file);
+  void init_board();
+  void move_crates(const state_t &s);
+};
+
+struct state_t_comparator
+{
+  bool operator()(const state_t &a, const state_t &b) const
+  {
+    return a.f_eval < b.f_eval;
+  }
 };
 
 sok_board_t::sok_board_t()
@@ -50,6 +104,7 @@ sok_board_t::sok_board_t()
     for (int j = 0; j < NBC; j++)
       board[i][j] = FREE;
 }
+
 void sok_board_t::print_board()
 {
   for (int i = 0; i < board_nbl; i++)
@@ -64,6 +119,45 @@ void sok_board_t::print_board()
   }
 }
 
+void sok_board_t::move_crates(const state_t &s)
+{
+  for (int i = 0; i < board_nbl; i++)
+  {
+    for (int j = 0; j < NBC; j++)
+    {
+      if (board[i][j] == CRATE_ON_FREE || board[i][j] == MAN1_ON_FREE)
+      {
+        board[i][j] = FREE;
+      }
+      else if (board[i][j] == CRATE_ON_TARGET || board[i][j] == MAN1_ON_TARGET)
+      {
+        board[i][j] = TARGET;
+      }
+    }
+  }
+
+  for (const auto &c : s.crates)
+  {
+    if (board[c.first][c.second] == TARGET)
+    {
+      board[c.first][c.second] = CRATE_ON_TARGET;
+    }
+    if (board[c.first][c.second] == FREE)
+    {
+      board[c.first][c.second] = CRATE_ON_FREE;
+    }
+  }
+
+  
+
+  man1_x = s.player1.first;
+  man1_y = s.player1.second;
+
+  if (board[man1_x][man1_y] == FREE)
+    board[man1_x][man1_y] = MAN1_ON_FREE;
+  if (board[man1_x][man1_y] == TARGET)
+    board[man1_x][man1_y] = MAN1_ON_TARGET;
+}
 
 void sok_board_t::load(char *_file)
 {
@@ -77,6 +171,7 @@ void sok_board_t::load(char *_file)
     exit(EXIT_FAILURE);
   }
   board_nbl = 0;
+  nb_crates = 0;
   while ((nread = getline(&line, &len, fp)) != -1)
   {
     if (((int)nread) > 0)
@@ -100,10 +195,12 @@ void sok_board_t::load(char *_file)
         else if (line[i] == board_str[CRATE_ON_FREE])
         {
           board[board_nbl][i] = CRATE_ON_FREE;
+          nb_crates++;
         }
         else if (line[i] == board_str[CRATE_ON_TARGET])
         {
           board[board_nbl][i] = CRATE_ON_TARGET;
+          nb_crates++;
         }
         else if (line[i] == board_str[MAN1_ON_FREE])
         {
