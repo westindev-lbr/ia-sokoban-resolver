@@ -34,3 +34,4 @@
 *.app
 
 .DS_Store
+a.out.dSYM
